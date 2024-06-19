@@ -24,13 +24,13 @@ def extract_address_from_url(url):
     return None, None, None, None
 
 # Function to process the JSON file and write to CSV
-def process_file(file_path):
+def process_file(json_file_path, csv_file_path):
     try:
-        with open(file_path, 'r') as file:
+        with open(json_file_path, 'r') as file:
             data = json.load(file)
 
-        with open('addresses.csv', 'w', newline='') as csvfile:
-            fieldnames = ['address', 'city', 'state', 'zip']
+        with open(csv_file_path, 'w', newline='') as csvfile:
+            fieldnames = ['salutation', 'firstname', 'lastname', 'fullname', 'address', 'city', 'state', 'zip', 'citystatezip']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
 
@@ -59,7 +59,7 @@ def process_file(file_path):
                     address, city, state, zip_code = extract_address_from_url(properties['google_maps_url'])
 
                 if address and city and state and zip_code:
-                    writer.writerow({'address': address, 'city': city, 'state': state, 'zip': zip_code})
+                    writer.writerow({'salutation': '','' 'firstname': '', 'lastname': "Preferred Customer", 'fullname': "Preferred Customer", 'address': address, 'city': city, 'state': state, 'zip': zip_code, 'citystatezip': f"{city} {state} {zip_code}"})
         return True
     except Exception as e:
         print(f"Error: {e}")
@@ -67,13 +67,15 @@ def process_file(file_path):
 
 # Function to open file dialog and select JSON file
 def open_file_dialog():
-    file_path = filedialog.askopenfilename(title="Select a JSON file", filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
-    if file_path:
-        success = process_file(file_path)
-        if success:
-            messagebox.showinfo("Success", "Addresses have been written to addresses.csv")
-        else:
-            messagebox.showerror("Error", "Failed to process the file")
+    json_file_path = filedialog.askopenfilename(title="Select a JSON file", filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+    if json_file_path:
+        csv_file_path = filedialog.asksaveasfilename(title="Save CSV file as", defaultextension=".csv", filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
+        if csv_file_path:
+            success = process_file(json_file_path, csv_file_path)
+            if success:
+                messagebox.showinfo("Success", f"Addresses have been written to {csv_file_path}")
+            else:
+                messagebox.showerror("Error", "Failed to process the file")
 
 # Create the main Tkinter window
 root = tk.Tk()
